@@ -9,8 +9,8 @@ function Landing(props) {
         <div className="col-12">
           <div className="card">
             <div className="card-body">
-              <h1 className="card-title">Hello There</h1>
-              <p className="card-text">Tugas Besar LaSTI Kelompok 4</p>
+              <h3 className="card-title">Rumah Sakit Advent Bandung QR Code API Prototype</h3>
+              <p className="card-text">Tugas Besar II3120 Layanan Sistem dan Teknologi Informasi, Kelompok 4, Institut Teknologi Bandung, 2020</p>
               <table className="table">
                 <thead>
                   <tr>
