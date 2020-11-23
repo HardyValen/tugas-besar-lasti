@@ -7,7 +7,7 @@ const FormListVIP = () => {
 
       <div className="form-group">
         <div className="form-check">
-          <input type="checkbox" className="form-check-input" name="permissions" id="VIP_1302" value="VIP_1302"/>
+          <input type="checkbox" className="form-check-input" name="permissions" id="VIP_1301" value="VIP_1301"/>
           <label htmlFor="VIP_1301" className="form-check-label">Ruang 1301</label>
         </div>
 

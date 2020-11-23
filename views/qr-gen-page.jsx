@@ -10,8 +10,6 @@ const FormListVIP = require('./component/_list-room-vip');
 const DefaultLayout = require('./layouts/default');
 
 const QRGenPage = (props) => {
-  let dateValue = new Date(Date.now() + ((2 + 7) * 3600000)).toISOString().slice(0, -8) // 2 Jam
-
   return (
     <DefaultLayout title={props.title}>
       <div className="row">
@@ -24,7 +22,7 @@ const QRGenPage = (props) => {
               <form action={FrontendRoutes.QRGenerator} method="POST">
                 <div className="form-group">
                   <label htmlFor="nama_pengunjung">Nama Pengunjung</label>
-                  <input type="text" name="nama_pengunjung" id="nama_pengunjung" className="form-control" aria-describedby="namaHelp"/>
+                  <input type="text" name="nama_pengunjung" id="nama_pengunjung" className="form-control" aria-describedby="namaHelp" required/>
                   <small id="namaHelp" className="form-text text-muted">Jika pengunjung lebih dari satu, masukkan nama perwakilan saja</small>
                 </div>
 
@@ -32,7 +30,7 @@ const QRGenPage = (props) => {
                   <div className="col-md-6">
                     <div className="form-group">
                       <label htmlFor="jumlah_pengunjung">Jumlah Pengunjung</label>
-                      <input type="number" min="1" max="100" name="jumlah_pengunjung" id="jumlah_pengunjung" className="form-control" defaultValue="1"/>
+                      <input type="number" min="1" max="100" name="jumlah_pengunjung" id="jumlah_pengunjung" className="form-control" required/>
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -41,8 +39,8 @@ const QRGenPage = (props) => {
                       <input type="datetime-local" 
                         name="expired_time" 
                         id="expired_time" 
-                        className="form-control" 
-                        defaultValue={dateValue}
+                        className="form-control"
+                        required
                       />
                     </div>
                   </div>

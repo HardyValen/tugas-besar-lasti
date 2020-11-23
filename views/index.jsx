@@ -74,6 +74,22 @@ function Landing(props) {
             </div>
           </div>
         </div>
+
+        <div className="col-12 col-md-3">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title">QR Scanner</h5>
+            </div>
+            <div className="card-body">
+              <p className="card-text">
+                QR Scanner dengan pilihan untuk API Call 
+              </p>
+              <a href={FrontendRoutes.QRScannerPage} className="card-link">
+                QR Scanner
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </DefaultLayout>
   )
