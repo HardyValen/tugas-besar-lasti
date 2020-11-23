@@ -6,18 +6,22 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const handlebars = require('express-handlebars');
+// const handlebars = require('express-handlebars');
 
 const indexRouter = require('./routes/index');
 
 const app = express();
 
-app.set('view engine', 'handlebars');
-app.engine('handlebars', handlebars({
-  extname: 'handlebars',
-  layoutsDir: __dirname + '/views/layouts',
-  defaultLayout: 'index'
-}))
+// app.set('view engine', 'handlebars');
+// app.engine('handlebars', handlebars({
+//   extname: 'handlebars',
+//   layoutsDir: __dirname + '/views/layouts',
+//   defaultLayout: 'index'
+// }))
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jsx');
+app.engine('jsx', require('express-react-views').createEngine({doctype: "<!DOCTYPE html>"}));
+
 
 const corsOptions = {
   origin: "*",

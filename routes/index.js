@@ -3,7 +3,7 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('main', {layout: 'index'});
+  res.render('index', {title: "Landing"});
 });
 
 router.use('/qr', require('./qrcode'));

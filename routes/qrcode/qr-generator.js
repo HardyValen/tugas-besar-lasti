@@ -5,20 +5,9 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
 router.get('/', async function(req, res) {
-  
-  // const r = fs.createReadStream(__dirname + "/buffer.png")
-  // const r = QRcode.toFileStream(stream, "Hello World");
-  // const ps = new stream.PassThrough()
-  // stream.pipeline(r, ps, (err) => {
-  //   if (err) {
-  //     console.log(err);
-  //     return res.status(400).send(err)
-  //   }
-  // })
-  // ps.pipe(res);
-
+  const { content } = req.query;
   try {
-    let content = uuidv4();
+    // let content = uuidv4();
     const qrStream = new stream.PassThrough();
     await QRcode.toFileStream(qrStream, content, {
       type: 'png',
@@ -32,8 +21,19 @@ router.get('/', async function(req, res) {
   }
 });
 
+router.post('/', (req, res) => {
+  let id_pengunjung = uuidv4();
+  let data = {
+    id_pengunjung,
+    ...req.body
+  }
+
+  console.log(data);
+  res.redirect(`/qr/qr-generator?content=${id_pengunjung}`, 301)
+})
+
 router.get('/page', function(req, res) {
-  res.render('qr-render');
+  res.render('qr-gen-page', {title: "QR Generator"});
 });
 
 
