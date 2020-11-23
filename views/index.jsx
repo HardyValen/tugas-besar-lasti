@@ -43,7 +43,7 @@ function Landing(props) {
       </div>
 
       <div className="row mt-5">
-        <div className="col-3">
+        <div className="col-12 col-md-3">
           <div className="card">
             <div className="card-header">
               <h5 className="card-title">QR Code Generator</h5>
@@ -59,7 +59,21 @@ function Landing(props) {
           </div>
         </div>
 
-
+        <div className="col-12 col-md-3">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title">API Docs</h5>
+            </div>
+            <div className="card-body">
+              <p className="card-text">
+                Dokumentasi API QR Code Generator dengan Swagger 
+              </p>
+              <a href={FrontendRoutes.APIDocs} className="card-link">
+                API Docs
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </DefaultLayout>
   )
