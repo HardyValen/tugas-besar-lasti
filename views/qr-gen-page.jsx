@@ -8,7 +8,6 @@ const FormListSuite = require('./component/_list-room-suite');
 const FormListSVIP = require('./component/_list-room-svip');
 const FormListVIP = require('./component/_list-room-vip');
 const DefaultLayout = require('./layouts/default');
-// const { v4: uuidv4 } = require('uuid');
 
 const QRGenPage = (props) => {
   let dateValue = new Date(Date.now() + ((2 + 7) * 3600000)).toISOString().slice(0, -8) // 2 Jam
@@ -38,10 +37,10 @@ const QRGenPage = (props) => {
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label htmlFor="expiredTime">Waktu Expire</label>
+                      <label htmlFor="expired_time">Waktu Expire</label>
                       <input type="datetime-local" 
-                        name="expiredtime" 
-                        id="expiredTime" 
+                        name="expired_time" 
+                        id="expired_time" 
                         className="form-control" 
                         defaultValue={dateValue}
                       />
