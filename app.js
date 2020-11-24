@@ -16,7 +16,79 @@ const swaggerDefinition = {
   basePath: '/',
   info: {
     title: 'QR Code API Rumah Sakit Advent Bandung',
-    version: '1.0.0'
+    description: "API Documentation untuk prototipe layanan cerdas QR Code untuk Rumah Sakit Advent, Bandung. Halaman utama layanan tersebut dapat diakses dengan [link ini](/). Anda harus menyalakan VPN ITB jika hostingnya masih di http://167.205.3.224:9000. ",
+    version: '1.0.0',
+  },
+  definitions: {
+    Pengunjung: {
+      type: "object",
+      properties: {
+        id_pengunjung: {
+          type: "uuid",
+          format: "uuid v4",
+        },
+        nama_pengunjung: {
+          type: "string"
+        },
+        jumlah_pengunjung: {
+          type: "integer",
+          min: "1",
+          max: "100"
+        },
+        created_date: {
+          type: "string",
+          format: "datetime"
+        },
+        expired_date: {
+          type: "string",
+          format: "datetime"
+        },
+        permissions: {
+          type: "id_ruangan",
+          format: "id_ruangan[]",
+        }
+      }
+    },
+
+    Ruangan: {
+      type: "object",
+      description: "Bisa berupa ruangan fisik, seperti ruang inap, atau keseluruhan satu lantai gedung itu.",
+      properties: {
+        id_ruangan: {
+          type: "string"
+        },
+        nama_ruangan: {
+          type: "string"
+        },
+        jumlah_pengunjung: {
+          type: "integer",
+          min: 0
+        }
+      }
+    },
+
+    Log: {
+      type: "object",
+      description: "Transaksi check in dan check out, digunakan untuk keperluan logging",
+      properties: {
+        id_log: {
+          type: "integer",
+          format: "<sequence> int64"
+        },
+        id_pengunjung: {
+          type: "id_pengunjung",
+          format: "uuid v4"
+        },
+        "type": {
+          type: "string",
+          enum: ["check-in", "check-out"]
+        },
+        timestamp: {
+          type: "string",
+          format: "datetime"
+        }
+      }
+    }
   }
 }
 

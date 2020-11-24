@@ -63,6 +63,7 @@ let visitorLog = [
  *
  * /qr/qr-scanner/page:
  *   get:
+ *     summary: Page untuk qr scanner
  *     description: Render page form untuk check in, check out, dan QR Code Scanner pengunjung rumah sakit
  *     produces:
  *       - text/html
@@ -75,24 +76,39 @@ router.get('/page', function(req, res) {
   res.render('qr-scanner-page', {title: "QR Scanner"});
 });
 
-/**
+ /**
  * @swagger
  *
  * /qr/qr-scanner/checkin:
- *   post:
- *     description:
- *     produces:
- *       - text/plain
- *     responses:
- *       200:
- *         description: OK
+ *  post:
+ *    summary: Check in pengunjung dengan id yang disimpan di QR code
+ *    parameters:
+ *      - in: formData
+ *        name: id_pengunjung
+ *        description: String UUID hasil scan dari QR Code
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
+ *      - in: formData
+ *        name: id_ruangan
+ *        description: String yang merepresentasikan identitas ruangan
+ *        type: string
+ *        example: Kelas1_1702
+ *    produces:
+ *      - text/plain
+ *    responses:
+ *      200:
+ *        description: Mengembalikan pesan singkat untuk keperluan logging
+ *      400:
+ *        description: Jika pengunjung ingin check in ke ruangan yang tidak dikasih izin, atau sudah expired sesi kunjungannya
+ *      404:
+ *        description: Jika id_pengunjung tidak ditemukan di database
  */
 
 router.post('/checkin', (req, res) => {
   let { id_pengunjung, id_ruangan } = req.body;
 
   if (!id_pengunjung) {
-    res.status(400).send("Visitor Not Found!")
+    res.status(404).send("Visitor Not Found!")
   }
 
   let visitorInQuery = visitorsList.filter((data) => {return (data.id_pengunjung.indexOf(id_pengunjung) > -1)})
@@ -110,21 +126,36 @@ router.post('/checkin', (req, res) => {
       res.status(400).send(`Visitor ${visitorTemp.nama_pengunjung} is trying to check in to ${id_ruangan}, which isn't included in subject's permission!`)
     }
   } else {
-    res.status(403).send("No Visitor Found")
+    res.status(404).send("Visitor Not Found")
   }
 })
 
-/**
+ /**
  * @swagger
  *
  * /qr/qr-scanner/checkout:
- *   post:
- *     description:
- *     produces:
- *       - text/plain
- *     responses:
- *       200:
- *         description: OK
+ *  post:
+ *    summary: Check out pengunjung dengan id yang disimpan di QR code
+ *    parameters:
+ *      - in: formData
+ *        name: id_pengunjung
+ *        description: String UUID hasil scan dari QR Code
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
+ *      - in: formData
+ *        name: id_ruangan
+ *        description: String yang merepresentasikan identitas ruangan
+ *        type: string
+ *        example: Kelas1_1701
+ *    produces:
+ *      - text/plain
+ *    responses:
+ *      200:
+ *        description: Mengembalikan pesan singkat untuk keperluan logging
+ *      400:
+ *        description: Jika pengunjung ingin check out dari ruangan yang tidak dikasih izin
+ *      404:
+ *        description: Jika id_pengunjung tidak ditemukan di database
  */
 
 router.post('/checkout', (req, res) => {
@@ -154,55 +185,72 @@ router.post('/checkout', (req, res) => {
  *
  * /qr/qr-scanner/get-visitor-data:
  *   get:
- *     description:
+ *     summary: Mendapatkan data pengunjung berdasarkan id_pengunjung pada request query
  *     produces:
  *       - application/json
+ *       - text/plain
+ *     parameters:
+ *       - in: query
+ *         name: id_pengunjung
+ *         description: String UUID hasil scan dari QR Code
+ *         type: string
+ *         example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
  *     responses:
  *       200:
- *         description: OK
+ *        description: Kembalikan data json pengunjung
+ *       404:
+ *        description: Jika tidak ditemukan pengunjung pada database dengan id_pengunjung pada request query 
  */
 
 router.get('/get-visitor-data', (req, res) => {
   let { id_pengunjung } = req.query;
 
   if (!id_pengunjung) {
-    res.status(400).send("Visitor Not Found!")
+    res.status(404).send("Visitor Not Found!")
   }
   
   let visitorInQuery = visitorsList.filter((data) => {return (data.id_pengunjung.indexOf(id_pengunjung) > -1)})
   if (visitorInQuery.length > 0) {
     res.status(200).json(visitorInQuery[0]);
   } else {
-    res.status(400).send("Visitor Not Found!")
+    res.status(404).send("Visitor Not Found!")
   }
 })
 
 /**
  * @swagger
  *
- * /qr/qr-scanner/get-visitor-log:
+ * /qr/qr-scanner/get-visitor-data:
  *   get:
- *     description:
+ *     summary: Mendapatkan data log pengunjung berdasarkan id_pengunjung pada request query
  *     produces:
  *       - application/json
+ *       - text/plain
+ *     parameters:
+ *       - in: query
+ *         name: id_pengunjung
+ *         description: String UUID hasil scan dari QR Code
+ *         type: string
+ *         example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
  *     responses:
  *       200:
- *         description: OK
+ *        description: Kembalikan data json log pengunjung
+ *       404:
+ *        description: Jika tidak ditemukan pengunjung pada database dengan id_pengunjung pada request query 
  */
-
 
 router.get('/get-visitor-log', (req, res) => {
   let { id_pengunjung } = req.query;
 
   if (!id_pengunjung) {
-    res.status(400).send("Visitor Not Found!")
+    res.status(404).send("Visitor Not Found!")
   }
   
   let visitorInQuery = visitorLog.filter((data) => {return (data.id_pengunjung.indexOf(id_pengunjung) > -1)})
   if (visitorInQuery.length > 0) {
     res.status(200).json(visitorInQuery)
   } else {
-    res.status(400).send("Visitor Not Found!")
+    res.status(404).send("Visitor Not Found!")
   }
 })
 
