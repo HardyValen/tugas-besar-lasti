@@ -57,12 +57,8 @@ const swaggerDefinition = {
         id_ruangan: {
           type: "string"
         },
-        nama_ruangan: {
+        tipe_ruangan: {
           type: "string"
-        },
-        jumlah_pengunjung: {
-          type: "integer",
-          min: 0
         }
       }
     },

@@ -21,5 +21,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.use('/qr', require('./qrcode'));
+router.use('/ruangan', require('./ruangan'));
+router.use('/pengunjung', require('./pengunjung'));
 
 module.exports = router;
