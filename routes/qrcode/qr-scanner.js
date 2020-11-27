@@ -60,7 +60,7 @@ router.post('/checkin', async (req, res) => {
 
   if (!id_pengunjung || !id_ruangan) {
     // Case 1: Kalo misalnya kurang format id_pengunjung atau id_ruangan
-    res.status(400).send("Tolong sertakan body id_pengunjung!")
+    res.status(400).send("Tolong lengkapi body (perlu id_pengunjung dan id_ruangan)!")
   }
 
   let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
@@ -136,7 +136,7 @@ router.post('/checkin', async (req, res) => {
           await t.commit();
 
           // Case 5: Pengunjung gagal check in karena sessionnya sudah expired
-          res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin masuk ke ruangan ${id_ruangan}, tapi sesi izinnya sudah expired!)`)
+          res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin masuk ke ruangan ${id_ruangan}, tapi sesi izinnya sudah expired!`)
         } catch (error) {
           await t.rollback()
           res.status(500).send("Internal Server Error")
@@ -190,7 +190,7 @@ router.post('/checkin', async (req, res) => {
  *      - text/plain
  *    responses:
  *      200:
- *        description: Mengembalikan pesan singkat untuk keperluan logging
+ *        description: Halo Patrick
  *      400:
  *        description: Jika pengunjung ingin check out dari ruangan yang tidak dikasih izin
  *      404:
@@ -204,7 +204,7 @@ router.post('/checkout', async (req, res) => {
 
   if (!id_pengunjung || !id_ruangan) {
     // Case 1: Kalo misalnya kurang format id_pengunjung atau id_ruangan
-    res.status(400).send("Tolong sertakan body id_pengunjung!")
+    res.status(400).send("Tolong lengkapi body (perlu id_pengunjung dan id_ruangan)!")
   }
 
   let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
