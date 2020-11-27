@@ -52,6 +52,7 @@ const LogPengunjung = require('../db/models/LogPengunjung')(sequelize, DataTypes
  *          example: Tidak menemukan pengunjung
  *      
  */
+
 router.get('/', async (req, res) => {
   let { id } = req.query;
   let data;
