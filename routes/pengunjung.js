@@ -23,9 +23,34 @@ const LogPengunjung = require('../db/models/LogPengunjung')(sequelize, DataTypes
  *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
  *    responses:
  *      200:
+ *        description: OK
+ *        schema: 
+ *          type: Object
+ *          example: 
+ *            [
+                {
+                  "id_pengunjung": "b1d42a9f-0a58-44ec-824e-a56929d7fa3a",
+                  "nama_pengunjung": "Jhon Doe",
+                  "jumlah_pengunjung": 3,
+                  "current_ruangan": null,
+                  "permissions": [
+                    "Kelas1_1701"
+                  ],
+                  "created_date": "2020-11-27T14:05:05.089Z",
+                  "expired_date": "2020-12-28T07:05:05.089Z"
+                }
+              ]
  *      400:
+ *        description: Bad Request
+ *        schema:
+ *          type: string
+ *          example: Format ID pengunjung salah, (Harus UUID)
  *      404:
- *        
+ *        description: Not Found
+ *        schema:
+ *          type: string
+ *          example: Tidak menemukan pengunjung
+ *      
  */
 router.get('/', async (req, res) => {
   let { id } = req.query;
@@ -54,6 +79,22 @@ router.get('/', async (req, res) => {
  *    summary: Membuat satu pengunjung baru pada sistem
  *    tags:
  *      - Pengunjung
+ *    parameters:
+ *      - in: query
+ *        name: id
+ *        description: String UUID Pengunjung
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
+ *      - in: query
+ *        name: id
+ *        description: String UUID Pengunjung
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
+ *      - in: query
+ *        name: id
+ *        description: String UUID Pengunjung
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
  */
 
 router.post('/', async (req, res) => {
@@ -87,7 +128,6 @@ router.post('/', async (req, res) => {
     })
 
     await t.commit();
-    
     res.redirect(`/qr/qr-generator?content=${id_pengunjung}`, 301)
   } catch (error) {
     console.log(error.message)
