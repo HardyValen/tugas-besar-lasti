@@ -25,7 +25,7 @@ const LogPengunjung = require('../db/models/LogPengunjung')(sequelize, DataTypes
  *      200:
  *        description: OK
  *        schema: 
- *          type: Object
+ *          type: Pengunjung
  *          example: 
  *            [
                 {
@@ -80,21 +80,27 @@ router.get('/', async (req, res) => {
  *    tags:
  *      - Pengunjung
  *    parameters:
- *      - in: query
- *        name: id
- *        description: String UUID Pengunjung
+ *      - in: formData
+ *        name: nama_pengunjung
  *        type: string
- *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
- *      - in: query
- *        name: id
- *        description: String UUID Pengunjung
- *        type: string
- *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
- *      - in: query
- *        name: id
- *        description: String UUID Pengunjung
- *        type: string
- *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
+ *        example: Testt
+ *      - in: formData
+ *        name: jumlah_pengunjung
+ *        type: integer
+ *        example: 2
+ *      - in: formData
+ *        name: permissions
+ *        type: string[]
+ *        example: ['Suite_1101', 'Kelas1_1701']
+ *      - in: formData
+ *        name: expired_date
+ *        type: datetime
+ *        example: 2020-11-27 14:35:21.32+00
+ *    responses:
+ *      301:
+ *        description: Pengunjung berhasil dibuat, Di redirect menuju GET /qr/qr-generator?content={id_pengunjung}
+ *      500:
+ *        description: Server / Database Error
  */
 
 router.post('/', async (req, res) => {
@@ -144,12 +150,72 @@ router.post('/', async (req, res) => {
  *    summary: Update salah satu pengunjung.
  *    tags:
  *      - Pengunjung
+ *    parameters:
+ *      - in: formData
+ *        name: nama_pengunjung
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
+ *      - in: formData
+ *        name: nama_pengunjung
+ *        type: string
+ *        example: Test
+ *      - in: formData
+ *        name: jumlah_pengunjung
+ *        type: integer
+ *        example: 4
+ *      - in: formData
+ *        name: permissions
+ *        type: string[]
+ *        example: ['Suite_1101', 'Kelas1_1701']
+ *      - in: formData
+ *        name: expired_date
+ *        type: datetime
+ *        example: 2020-11-27 14:35:21.32+00
+ *    responses:
+ *      200:
+ *        description: OK, Pengunjung dengan id ${id_pengunjung} telah berhasil diupdate
+ *      400:
+ *        description: Bad Request, Masukkan UUID Pengunjung dengan benar!
+ *      404:
+ *        description: Not Found, Tidak menemukan pengunjung dengan id ${id_pengunjung
+ *      500:
+ *        description: Server / Database Error
  * 
  * /pengunjung/update:
  *  post:
- *    summary: Sama seperti PUT /pengunjung
+ *    summary: Update salah satu pengunjung, Sama fungsinya seperti PUT /pengunjung.
  *    tags:
- *      - Pengunjung 
+ *      - Pengunjung
+ *    parameters:
+ *      - in: formData
+ *        name: nama_pengunjung
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
+ *      - in: formData
+ *        name: nama_pengunjung
+ *        type: string
+ *        example: Test
+ *      - in: formData
+ *        name: jumlah_pengunjung
+ *        type: integer
+ *        example: 4
+ *      - in: formData
+ *        name: permissions
+ *        type: string[]
+ *        example: ['Suite_1101', 'Kelas1_1701']
+ *      - in: formData
+ *        name: expired_date
+ *        type: datetime
+ *        example: 2020-11-27 14:35:21.32+00
+ *    responses:
+ *      200:
+ *        description: OK, Pengunjung dengan id ${id_pengunjung} telah berhasil diupdate
+ *      400:
+ *        description: Bad Request, Masukkan UUID Pengunjung dengan benar!
+ *      404:
+ *        description: Not Found, Tidak menemukan pengunjung dengan id ${id_pengunjung
+ *      500:
+ *        description: Server / Database Error
  */
 
 const updatePengunjung = async (req, res) => {
@@ -201,6 +267,65 @@ router.post('/update', (req, res) => {updatePengunjung(req, res)})
  *    tags:
  *      - Pengunjung
  *      - Logs
+ *    parameters:
+ *      - in: query
+ *        name: id
+ *        type: string
+ *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb      
+ *    responses:
+ *      200:
+ *        description: OK
+ *        schema:
+ *          type: LogPengunjung
+ *          example:
+ *            [
+                  {
+                      "id_log": 3,
+                      "id_pengunjung": "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
+                      "id_ruangan": "Kelas1_1702",
+                      "tipe_log": "Check Out Failure (Already Checked In)",
+                      "waktu_log": "2020-11-27T14:11:02.849Z"
+                  },
+                  {
+                      "id_log": 4,
+                      "id_pengunjung": "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
+                      "id_ruangan": "Kelas1_1702",
+                      "tipe_log": "Check Out Failure (Already Checked In)",
+                      "waktu_log": "2020-11-27T14:11:31.370Z"
+                  },
+                  {
+                      "id_log": 11,
+                      "id_pengunjung": "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
+                      "id_ruangan": "Kelas1_1701",
+                      "tipe_log": "Check In Failure (No Permission)",
+                      "waktu_log": "2020-11-27T14:22:21.566Z"
+                  },
+                  {
+                      "id_log": 13,
+                      "id_pengunjung": "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
+                      "id_ruangan": "Kelas1_1701",
+                      "tipe_log": "Check Out Failure (No Permission)",
+                      "waktu_log": "2020-11-27T14:24:38.827Z"
+                  },
+                  {
+                      "id_log": 17,
+                      "id_pengunjung": "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
+                      "id_ruangan": "Kelas1_1702",
+                      "tipe_log": "Check In",
+                      "waktu_log": "2020-11-27T14:32:23.436Z"
+                  },
+                  {
+                      "id_log": 18,
+                      "id_pengunjung": "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
+                      "id_ruangan": "Kelas1_1702",
+                      "tipe_log": "Already Checked In!",
+                      "waktu_log": "2020-11-27T14:32:50.865Z"
+                  }
+              ]
+ *      400:
+ *        description: Bad Request, Masukkan UUID Pengunjung dengan benar 
+ *      404:
+ *        description: Not Found, Tidak ada entri pada log pengunjung
  */
 
 router.get('/log', async (req, res) => {
