@@ -37,6 +37,9 @@ function Landing(props) {
                   </tr>
                 </tbody>
               </table>
+              <a href={FrontendRoutes.APIDocs} className="card-link">
+                API Docs
+              </a>
             </div>
           </div>
         </div>
@@ -62,22 +65,6 @@ function Landing(props) {
         <div className="col-12 col-md-3">
           <div className="card">
             <div className="card-header">
-              <h5 className="card-title">API Docs</h5>
-            </div>
-            <div className="card-body">
-              <p className="card-text">
-                Dokumentasi API QR Code Generator dengan Swagger 
-              </p>
-              <a href={FrontendRoutes.APIDocs} className="card-link">
-                API Docs
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-md-3">
-          <div className="card">
-            <div className="card-header">
               <h5 className="card-title">QR Scanner</h5>
             </div>
             <div className="card-body">
@@ -86,6 +73,38 @@ function Landing(props) {
               </p>
               <a href={FrontendRoutes.QRScannerPage} className="card-link">
                 QR Scanner
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-12 col-md-3">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title">Dashboard Pengunjung</h5>
+            </div>
+            <div className="card-body">
+              <p className="card-text">
+                Semacam view untuk data pengunjung
+              </p>
+              <a href={FrontendRoutes.PengunjungPage} className="card-link">
+                Pengunjung
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-12 col-md-3">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title">Dashboard Ruangan</h5>
+            </div>
+            <div className="card-body">
+              <p className="card-text">
+                Semacam view untuk data ruangan
+              </p>
+              <a href={FrontendRoutes.RuanganPage} className="card-link">
+                Ruangan
               </a>
             </div>
           </div>

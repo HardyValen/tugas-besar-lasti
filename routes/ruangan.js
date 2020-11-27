@@ -107,9 +107,14 @@ router.post('/', async (req, res) => {
  *      - Ruangan
  *    parameters:
  *      - in: formData
- *        name: id_ruangan
+ *        name: id
+ *        description: ID Ruangan yang lama (digunakan untuk searching)
  *        type: string
  *        example: TestRoom_1001
+ *      - in: formData
+ *        name: id_ruangan
+ *        type: string
+ *        example: NewTestRoom_1004
  *      - in: formData
  *        name: tipe_ruangan
  *        type: string

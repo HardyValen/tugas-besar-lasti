@@ -1,12 +1,26 @@
 const FrontendRoutes = {
   Home: "/",
-  QRGenerator: "/pengunjung",
   QRGeneratorPage: "/qr/qr-generator/page",
   QRScannerPage: "/qr/qr-scanner/page",
-  VisitorCheckIn: "/qr/qr-scanner/checkin",
-  VisitorCheckOut: "/qr/qr-scanner/checkout",
-  VisitorLog: "/qr/qr-scanner/get-visitor-log",
-  Visitor: "/qr/qr-scanner/get-visitor-data",
+  PengunjungPage: "/pengunjung/page",
+  RuanganPage: "/ruangan/page",
+
+  QRCheckIn: "/qr/qr-scanner/checkin",
+  QRCheckOut: "/qr/qr-scanner/checkout",
+  QRGenerator: "/qr/qr-generator",
+  
+  PengunjungGet: "/pengunjung",
+  PengunjungCreate: "/pengunjung",
+  PengunjungUpdate: "/pengunjung/update",
+  PengunjungLog: "/pengunjung/log",
+  
+  RuanganGet: "/ruangan",
+  RuanganCreate: "/ruangan",
+  RuanganUpdate: "/ruangan/update",
+  RuanganDelete: "/ruangan/delete",
+  RuanganLog: "/ruangan/log",
+  RuanganJumlahPengunjung: "/ruangan/jumlah-pengunjung",
+
   APIDocs: "/api-docs",
 }
 

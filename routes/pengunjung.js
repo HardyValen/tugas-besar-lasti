@@ -153,7 +153,7 @@ router.post('/', async (req, res) => {
  *      - Pengunjung
  *    parameters:
  *      - in: formData
- *        name: nama_pengunjung
+ *        name: id_pengunjung
  *        type: string
  *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
  *      - in: formData
@@ -189,7 +189,7 @@ router.post('/', async (req, res) => {
  *      - Pengunjung
  *    parameters:
  *      - in: formData
- *        name: nama_pengunjung
+ *        name: id_pengunjung
  *        type: string
  *        example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
  *      - in: formData
@@ -220,13 +220,20 @@ router.post('/', async (req, res) => {
  */
 
 const updatePengunjung = async (req, res) => {
-  const {
+  let {
     id_pengunjung,
     nama_pengunjung,
     jumlah_pengunjung,
     permissions,
     expired_date
   } = req.body;
+
+  if (!Array.isArray(permissions)) {
+    let temp = permissions;
+    permissions = [];
+    permissions.push(temp);
+    console.log(permissions)
+  }
 
   let findPengunjung = await Pengunjung.findOne({where: {id_pengunjung}}).catch(e => {
     res.status(400).send('Masukkan UUID Pengunjung dengan benar!')
@@ -251,6 +258,7 @@ const updatePengunjung = async (req, res) => {
     res.status(200).send(`Pengunjung dengan id ${id_pengunjung} telah berhasil diupdate`);
 
   } catch (error) {
+    console.log(error.message)
     await t.rollback();
     res.status(500).send(`Internal Server Error`)
   }

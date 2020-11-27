@@ -34,6 +34,12 @@ const DefaultLayout = (props) => {
               <li className="nav-item">
                 <a href={FrontendRoutes.QRScannerPage} className="nav-link">QR Scanner</a>
               </li>
+              <li className="nav-item">
+                <a href={FrontendRoutes.PengunjungPage} className="nav-link">Pengunjung</a>
+              </li>
+              <li className="nav-item">
+                <a href={FrontendRoutes.RuanganPage} className="nav-link">Ruangan</a>
+              </li>
             </ul>
           </div>
         </nav>

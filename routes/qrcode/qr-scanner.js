@@ -78,6 +78,7 @@ router.get('/page', function(req, res) {
 
 router.post('/checkin', async (req, res) => {
   let { id_pengunjung, id_ruangan } = req.body;
+  console.log(req.body);
   let t = await sequelize.transaction();
 
 
