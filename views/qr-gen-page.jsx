@@ -35,10 +35,10 @@ const QRGenPage = (props) => {
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label htmlFor="expired_time">Waktu Expire</label>
+                      <label htmlFor="expired_date">Waktu Expire</label>
                       <input type="datetime-local" 
-                        name="expired_time" 
-                        id="expired_time" 
+                        name="expired_date" 
+                        id="expired_date" 
                         className="form-control"
                         required
                       />

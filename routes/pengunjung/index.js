@@ -3,17 +3,27 @@ const router = express.Router();
 
 const sequelize = require('../../services/database');
 const { DataTypes } = require('sequelize');
+const { v4 } = require('uuid');
 const Pengunjung = require('../../db/models/Pengunjung')(sequelize, DataTypes);
 const LogPengunjung = require('../../db/models/LogPengunjung')(sequelize, DataTypes);
 
+/**
+ * @swagger
+ *
+ * /pengunjung:
+ *  get:
+ *    summary: Fetch satu pengunjung berdasarkan id atau seluruh pengunjung
+ */
 router.get('/', async (req, res) => {
   let { id } = req.query;
   let data;
 
   if (!id) {
-    data = await LogPengunjung.findAll()
+    data = await Pengunjung.findAll()
   } else {
-    data = await LogPengunjung.findAll({where: {id_pengunjung: id}});
+    data = await Pengunjung.findAll({where: {id_pengunjung: id}}).catch(e => {
+      res.status(400).send('Masukkan UUID Pengunjung dengan benar!')
+    })
   }
   
   if (data.length > 0) {
@@ -23,6 +33,53 @@ router.get('/', async (req, res) => {
   }
 })
 
+router.post('/', async (req, res) => {
+  let { 
+    nama_pengunjung,
+    jumlah_pengunjung,
+    expired_date,
+    permissions, 
+  } = req.body;
+
+  let id_pengunjung = v4();
+  let t = await sequelize.transaction();
+
+  if (!Array.isArray(permissions)) {
+    let temp = permissions;
+    permissions = [];
+    permissions.push(temp);
+    console.log(permissions)
+  }
+
+  try {
+    await Pengunjung.create({
+      id_pengunjung,
+      nama_pengunjung,
+      jumlah_pengunjung,
+      permissions,
+      created_date: Date.now(),
+      expired_date
+    }, {
+      transaction: t
+    })
+
+    await t.commit();
+    
+    res.redirect(`/qr/qr-generator?content=${id_pengunjung}`, 301)
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).send("Internal Server Error")
+  }
+
+});
+
+/**
+ * @swagger
+ *
+ * /pengunjung:
+ *  put:
+ *    summary: Update salah satu pengunjung.
+ */
 router.put('/', async (req, res) => {
   const {
     id_pengunjung,
@@ -32,7 +89,9 @@ router.put('/', async (req, res) => {
     expired_date
   } = req.body;
 
-  let findPengunjung = await Pengunjung.findOne({where: {id_pengunjung}}) 
+  let findPengunjung = await Pengunjung.findOne({where: {id_pengunjung}}).catch(e => {
+    res.status(400).send('Masukkan UUID Pengunjung dengan benar!')
+  }) 
 
   if (!findPengunjung) {
     res.status(404).send(`Tidak menemukan pengunjung dengan id ${id_pengunjung}`)
@@ -66,7 +125,9 @@ router.get('/log', async (req, res) => {
   if (!id) {
     data = await LogPengunjung.findAll()
   } else {
-    data = await LogPengunjung.findAll({where: {id_pengunjung: id}});
+    data = await LogPengunjung.findAll({where: {id_pengunjung: id}}).catch(e => {
+      res.status(400).send('Masukkan UUID Pengunjung dengan benar!')
+    });
   }
   
   if (data.length > 0) {

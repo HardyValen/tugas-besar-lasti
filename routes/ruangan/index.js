@@ -3,6 +3,7 @@ const router = express.Router();
 
 const sequelize = require('../../services/database');
 const { DataTypes } = require('sequelize');
+const Pengunjung = require('../../db/models/Pengunjung')(sequelize, DataTypes);
 const Ruangan = require('../../db/models/Ruangan')(sequelize, DataTypes);
 const LogRuangan = require('../../db/models/LogRuangan')(sequelize, DataTypes);
 
@@ -111,14 +112,16 @@ router.get('/jumlah-pengunjung', async (req, res) => {
   let { id_ruangan } = req.query;
   
   if (id_ruangan) {
-    let data = await LogRuangan.findAll({
-      limit: 1,
-      where: {id_ruangan},
-      order: [['waktu_log', 'DESC']]
-    })
-
-    if (data) {
-      res.status(200).send(data[0].get("jumlah_pengunjung"))
+    try {
+      await Pengunjung.sum('jumlah_pengunjung', {where: {current_ruangan: id_ruangan}})
+      .then(data => {res.status(200).send(`${data || 0}`)})
+      .catch(err => {
+        console.log(err.message);
+        res.status(500).send("Internal Server Error")
+      })
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send("Internal Server Error")
     }
   }
 

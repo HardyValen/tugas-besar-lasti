@@ -74,6 +74,8 @@ router.post('/checkin', async (req, res) => {
       if (new Date(visitorInQuery.get('expired_date')).valueOf() > Date.now()) {
         if (visitorInQuery.get('current_ruangan') != id_ruangan) {
           try {
+            let temp = await (() => {return Pengunjung.sum('jumlah_pengunjung', {where: {current_ruangan: id_ruangan} } )}) () 
+            
             await LogPengunjung.create({
               id_pengunjung,
               id_ruangan,
@@ -83,18 +85,19 @@ router.post('/checkin', async (req, res) => {
               transaction: t
             })
             
-            await LogRuangan.create({
-              id_ruangan,
-              jumlah_pengunjung: 0, 
-              waktu_log: Date.now()
-            }, {
-              transaction: t
-            })
-            
             await Pengunjung.update({
               current_ruangan: id_ruangan
             }, {
               where: {id_pengunjung},
+              transaction: t
+            })
+
+
+            await LogRuangan.create({
+              id_ruangan,
+              jumlah_pengunjung: temp, 
+              waktu_log: Date.now()
+            }, {
               transaction: t
             })
             
