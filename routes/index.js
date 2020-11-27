@@ -8,7 +8,9 @@ const router = express.Router();
  *
  * /:
  *   get:
- *     description: Daftar Nama Kelompok dan Navigasi
+ *     summary: Daftar Nama Kelompok dan Navigasi
+ *     tags:
+ *       - Pages
  *     produces:
  *       - text/html
  *     responses:

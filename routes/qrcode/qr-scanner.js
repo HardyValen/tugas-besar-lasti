@@ -12,8 +12,9 @@ const router = express.Router();
  *
  * /qr/qr-scanner/page:
  *   get:
- *     summary: Page untuk qr scanner
- *     description: Render page form untuk check in, check out, dan QR Code Scanner pengunjung rumah sakit
+ *     summary: Page untuk qr scanner, check in, dan check out
+ *     tags:
+ *       - Pages
  *     produces:
  *       - text/html
  *     responses:
@@ -30,7 +31,9 @@ router.get('/page', function(req, res) {
  *
  * /qr/qr-scanner/checkin:
  *  post:
- *    summary: Check in pengunjung dengan id yang disimpan di QR code
+ *    summary: Check in pengunjung menurut id_pengunjung
+ *    tags: 
+ *      - QR Code
  *    parameters:
  *      - in: formData
  *        name: id_pengunjung
@@ -46,11 +49,31 @@ router.get('/page', function(req, res) {
  *      - text/plain
  *    responses:
  *      200:
- *        description: Mengembalikan pesan singkat untuk keperluan logging
+ *        description: OK
+ *        schema:
+ *          type: string
+ *          example:
+ *            - Pengunjung ${nama_pengunjung} baru saja berhasil check in ke ${id_ruangan}
+ *            - Pengunjung ${nama_pengunjung} sudah check in di ruangan ${id_ruangan}
  *      400:
- *        description: Jika pengunjung ingin check in ke ruangan yang tidak dikasih izin, atau sudah expired sesi kunjungannya
+ *        description: Bad Request
+ *        schema:
+ *          type: string
+ *          example:
+ *            - Tolong lengkapi body (perlu id_pengunjung dan id_ruangan)!
+ *            - Tolong masukkan id_pengunjung dengan format UUID yang benar!
+ *            - Pengunjung ${nama_pengunjung} ingin masuk ke ruangan ${id_ruangan}, tapi sesi izinnya sudah expired!
+ *            - Pengunjung ${nama_pengunjung} ingin mencoba check in ke ${id_ruangan}, tapi tidak punya izin!
  *      404:
- *        description: Jika id_pengunjung tidak ditemukan di database
+ *        description: Not Found
+ *        schema:
+ *          type: string
+ *          example: Tidak menemukan pengunjung dengan id itu
+ *      500:
+ *        description: Server / Database Error
+ *        schema:
+ *          type: string
+ *          example: Internal Server Error
  */
 
 router.post('/checkin', async (req, res) => {
@@ -103,7 +126,7 @@ router.post('/checkin', async (req, res) => {
             
             await t.commit();
             // Case 3: Pengunjung berhasil check in karena id_pengunjung ketemu, id_ruangan 
-            res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} baru saja check in ke ${id_ruangan}`)
+            res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} baru saja berhasil check in ke ${id_ruangan}`)
           } catch (error) {
             await t.rollback()
             res.status(500).send("Internal Server Error")
@@ -178,6 +201,8 @@ router.post('/checkin', async (req, res) => {
  * /qr/qr-scanner/checkout:
  *  post:
  *    summary: Check out pengunjung dengan id yang disimpan di QR code
+ *    tags:
+ *      - QR Code
  *    parameters:
  *      - in: formData
  *        name: id_pengunjung
@@ -193,11 +218,32 @@ router.post('/checkin', async (req, res) => {
  *      - text/plain
  *    responses:
  *      200:
- *        description: Halo Patrick
+ *        description: OK
+ *        schema:
+ *          type: string
+ *          example:
+ *            - Pengunjung ${nama_pengunjung} baru saja keluar dari ${id_ruangan}
+ *            - Pengunjung ${nama_pengunjung} tidak ada di ruangan ${id_ruangan} atau mungkin sudah check out
  *      400:
- *        description: Jika pengunjung ingin check out dari ruangan yang tidak dikasih izin
+ *        description: Bad Request
+ *        schema:
+ *          type: string
+ *          example:
+ *            - Tolong lengkapi body (perlu id_pengunjung dan id_ruangan)!
+ *            - Tolong masukkan id_pengunjung dengan format UUID yang benar!
+ *            - Pengunjung ${nama_pengunjung} ingin check out dari ruang ${id_ruangan}, tapi tidak ada izin!
  *      404:
- *        description: Jika id_pengunjung tidak ditemukan di database
+ *        description: Not Found
+ *        schema:
+ *          type: string
+ *          example:
+ *            - Tidak menemukan pengunjung dengan id itu
+ *      500:
+ *        description: Server / Database Error
+ *        schema:
+ *          type: string
+ *          example:
+ *            - Internal Server Error
  */
 
 router.post('/checkout', async (req, res) => {

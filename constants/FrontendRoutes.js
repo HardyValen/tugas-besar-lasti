@@ -1,6 +1,6 @@
 const FrontendRoutes = {
   Home: "/",
-  QRGenerator: "/qr/qr-generator",
+  QRGenerator: "/pengunjung",
   QRGeneratorPage: "/qr/qr-generator/page",
   QRScannerPage: "/qr/qr-scanner/page",
   VisitorCheckIn: "/qr/qr-scanner/checkin",

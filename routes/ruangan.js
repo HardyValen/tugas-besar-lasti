@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const sequelize = require('../../services/database');
+const sequelize = require('../services/database');
 const { DataTypes } = require('sequelize');
-const Pengunjung = require('../../db/models/Pengunjung')(sequelize, DataTypes);
-const Ruangan = require('../../db/models/Ruangan')(sequelize, DataTypes);
-const LogRuangan = require('../../db/models/LogRuangan')(sequelize, DataTypes);
+const Pengunjung = require('../db/models/Pengunjung')(sequelize, DataTypes);
+const Ruangan = require('../db/models/Ruangan')(sequelize, DataTypes);
+const LogRuangan = require('../db/models/LogRuangan')(sequelize, DataTypes);
 
 router.get('/', async (req, res) => {
   let { id } = req.query;
