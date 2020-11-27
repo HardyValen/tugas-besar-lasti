@@ -1,62 +1,11 @@
 const express = require('express');
-const { routes } = require('../../app');
+const sequelize = require('../../services/database');
+const { DataTypes } = require('sequelize');
+const Pengunjung = require('../../db/models/Pengunjung')(sequelize, DataTypes);
+const LogPengunjung = require('../../db/models/LogPengunjung')(sequelize, DataTypes);
+const Ruangan = require('../../db/models/Ruangan')(sequelize, DataTypes);
+const LogRuangan = require('../../db/models/LogRuangan')(sequelize, DataTypes);
 const router = express.Router();
-
-let commonCreatedDate = new Date(Date.now() + ((7) * 3600000));
-let commonExpiredDate = new Date(Date.now() + ((2 + 7) * 3600000));
-
-let commonPastDate = new Date(Date.now() - ((24 - 7) * 3600000));
-let commonPastExpiredDate = new Date(Date.now() - ((22 - 7)  * 3600000));
-
-let visitorsList = [
-  {
-    id_pengunjung: "b1d42a9f-0a58-44ec-824e-a56929d7fa3a",
-    nama_pengunjung: "Jhon Doe",
-    jumlah_pengunjung: "3",
-    created_date: commonCreatedDate.toISOString(),
-    expired_date: commonExpiredDate.toISOString(),
-    permissions: ["Kelas1_1701"],
-  },
-  {
-    id_pengunjung: "1f17841a-8c57-4026-8e08-003a98092853",
-    nama_pengunjung: "Mary Ann",
-    jumlah_pengunjung: "5",
-    created_date: commonCreatedDate.toISOString(),
-    expired_date: commonExpiredDate.toISOString(),
-    permissions: ["Kelas1_1702"],
-  },
-  {
-    id_pengunjung: "ba440a58-4300-4a16-a646-28d70b15af95",
-    nama_pengunjung: "Bob Ross",
-    jumlah_pengunjung: "4",
-    created_date: commonPastDate.toISOString(),
-    expired_date: commonPastExpiredDate.toISOString(),
-    permissions: ["Kelas1_1701"],
-  },
-  {
-    id_pengunjung: "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
-    nama_pengunjung: "Alice Sue",
-    jumlah_pengunjung: "1",
-    created_date: commonPastDate.toISOString(),
-    expired_date: commonPastExpiredDate.toISOString(),
-    permissions: ["Kelas1_1702"],
-  }
-]
-
-let visitorLog = [
-  {
-    id_pengunjung: "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
-    ruangan: "Kelas1_1702",
-    jenis: "Check In",
-    timestamp: new Date(Date.now() - (((24 - 7)  * 3600000) + 300000)).toISOString()
-  },
-  {
-    id_pengunjung: "4f5c9fcc-4b37-4db5-be24-750d657ee7bb",
-    ruangan: "Kelas1_1702",
-    jenis: "Check Out",
-    timestamp: new Date(Date.now() - ((22 - 7)  * 3600000) + 300000).toISOString()
-  }
-]
 
 /**
  * @swagger
@@ -104,29 +53,104 @@ router.get('/page', function(req, res) {
  *        description: Jika id_pengunjung tidak ditemukan di database
  */
 
-router.post('/checkin', (req, res) => {
+router.post('/checkin', async (req, res) => {
   let { id_pengunjung, id_ruangan } = req.body;
+  let t = await sequelize.transaction();
 
   if (!id_pengunjung) {
-    res.status(404).send("Visitor Not Found!")
+    res.status(400).send("Tolong sertakan body id_pengunjung!")
   }
 
-  let visitorInQuery = visitorsList.filter((data) => {return (data.id_pengunjung.indexOf(id_pengunjung) > -1)})
+  let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
 
-  if (visitorInQuery.length > 0) {
-    let visitorTemp = visitorInQuery[0];
-    
-    if (visitorTemp.permissions.indexOf(id_ruangan) > -1) {
-      if (new Date(visitorTemp.expired_date).valueOf() > Date.now()) {
-        res.status(200).send(`Visitor ${visitorTemp.nama_pengunjung} has just going into ${id_ruangan}`)
+  if (visitorInQuery) {
+    if (visitorInQuery.permissions.indexOf(id_ruangan) > -1) {
+      if (new Date(visitorInQuery.get('expired_date')).valueOf() > Date.now()) {
+        if (visitorInQuery.get('current_ruangan') != id_ruangan) {
+          try {
+            await LogPengunjung.create({
+              id_pengunjung,
+              id_ruangan,
+              tipe_log: "Check In",
+              waktu_log: Date.now()
+            }, {
+              transaction: t
+            })
+
+            await LogRuangan.create({
+              id_ruangan,
+              jumlah_pengunjung: 0, 
+              waktu_log: Date.now()
+            }, {
+              transaction: t
+            })
+
+            await Pengunjung.update({
+              current_ruangan: id_ruangan
+            }, {
+              where: {id_pengunjung},
+              transaction: t
+            })
+
+            await t.commit();
+            res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} baru saja check in ke ${id_ruangan}`)
+          } catch (error) {
+            await t.rollback()
+            res.status(500).send("Internal Server Error")
+          }
+        } else {
+          try {
+            await LogPengunjung.create({
+              id_pengunjung,
+              id_ruangan,
+              tipe_log: "Already Checked In!",
+              waktu_log: Date.now()
+            }, {
+              transaction: t
+            })
+            await t.commit();
+            res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} sudah check in di ruangan ${id_ruangan}`)
+          } catch (error) {
+            await t.rollback()
+            res.status(500).send("Internal Server Error")
+          }
+        }
       } else {
-        res.status(400).send(`Visitor ${visitorTemp.nama_pengunjung} wanted to check in to ${id_ruangan}, but the registry session has been expired! (Visitor expiration date is ${new Date(visitorTemp.expired_date).valueOf()} while time now is ${Date.now()})`)
+        try {
+          await LogPengunjung.create({
+            id_pengunjung,
+            id_ruangan,
+            tipe_log: "Check In Failure (Session Expired)",
+            waktu_log: Date.now()
+          }, {
+            transaction: t
+          })
+          await t.commit();
+          res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin masuk ke ruangan ${id_ruangan}, tapi sesi izinnya sudah expired!)`)
+        } catch (error) {
+          await t.rollback()
+          res.status(500).send("Internal Server Error")
+        }
       }
     } else {
-      res.status(400).send(`Visitor ${visitorTemp.nama_pengunjung} is trying to check in to ${id_ruangan}, which isn't included in subject's permission!`)
+      try {
+        await LogPengunjung.create({
+          id_pengunjung,
+          id_ruangan,
+          tipe_log: "Check In Failure (No Permission)",
+          waktu_log: Date.now()
+        }, {
+          transaction: t
+        })
+        await t.commit();
+        res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin mencoba check in ke ${id_ruangan}, tapi tidak punya izin!`)
+      } catch (error) {
+        await t.rollback()
+        res.status(500).send("Internal Server Error")
+      }
     }
   } else {
-    res.status(404).send("Visitor Not Found")
+    res.status(404).send("Tidak menemukan pengunjung dengan id itu")
   }
 })
 
@@ -158,99 +182,80 @@ router.post('/checkin', (req, res) => {
  *        description: Jika id_pengunjung tidak ditemukan di database
  */
 
-router.post('/checkout', (req, res) => {
+router.post('/checkout', async (req, res) => {
   let { id_pengunjung, id_ruangan } = req.body;
 
+  let t = await sequelize.transaction();
+
   if (!id_pengunjung) {
-    res.status(400).send("Visitor Not Found!")
+    res.status(400).send("Tolong sertakan body id_pengunjung!")
   }
 
-  let visitorInQuery = visitorsList.filter((data) => {return (data.id_pengunjung.indexOf(id_pengunjung) > -1)})
+  let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
 
-  if (visitorInQuery.length > 0) {
-    let visitorTemp = visitorInQuery[0];
-    
-    if (visitorTemp.permissions.indexOf(id_ruangan) > -1) {
-      res.status(200).send(`Visitor ${visitorTemp.nama_pengunjung} has just passed from ${id_ruangan}`)
+  if (visitorInQuery) {
+    if (visitorInQuery.permissions.indexOf(id_ruangan) > -1) {
+      if (visitorInQuery.get('current_ruangan') == id_ruangan) {
+        try {
+          await LogPengunjung.create({
+            id_pengunjung,
+            id_ruangan,
+            tipe_log: "Check Out",
+            waktu_log: Date.now()
+          }, {
+            transaction: t
+          })
+
+          await Pengunjung.update({
+            current_ruangan: null
+          }, {
+            where: {id_pengunjung},
+            transaction: t
+          })
+  
+          await t.commit();
+          res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} baru saja keluar dari ${id_ruangan}`)
+        } catch (error) {
+          await t.rollback()
+          res.status(500).send("Internal Server Error")
+        }
+      } else {
+        try {
+          await LogPengunjung.create({
+            id_pengunjung,
+            id_ruangan,
+            tipe_log: "Check Out Failure (Already Checked In)",
+            waktu_log: Date.now()
+          }, {
+            transaction: t
+          })
+  
+          await t.commit();
+          res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} tidak ada di ruangan ${id_ruangan} atau mungkin sudah check out`)
+        } catch (error) {
+          await t.rollback()
+          res.status(500).send("Internal Server Error")
+        }
+      }
     } else {
-      res.status(400).send(`Visitor ${visitorTemp.nama_pengunjung} is trying to check out from ${id_ruangan}, which isn't included in subject's permission!`)
+      try {
+        await LogPengunjung.create({
+          id_pengunjung,
+          id_ruangan,
+          tipe_log: "Check Out Failure (No Permission)",
+          waktu_log: Date.now()
+        }, {
+          transaction: t
+        })
+        await t.commit();
+        res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin check out dari ruang ${id_ruangan}, tapi tidak ada izin!`)
+      } catch (error) {
+        await t.rollback()
+        res.status(500).send("Internal Server Error")
+      }
     }
   } else {
-    res.status(403).send("No Visitor Found")
-  }
-})
-
-/**
- * @swagger
- *
- * /qr/qr-scanner/get-visitor-data:
- *   get:
- *     summary: Mendapatkan data pengunjung berdasarkan id_pengunjung pada request query
- *     produces:
- *       - application/json
- *       - text/plain
- *     parameters:
- *       - in: query
- *         name: id_pengunjung
- *         description: String UUID hasil scan dari QR Code
- *         type: string
- *         example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
- *     responses:
- *       200:
- *        description: Kembalikan data json pengunjung
- *       404:
- *        description: Jika tidak ditemukan pengunjung pada database dengan id_pengunjung pada request query 
- */
-
-router.get('/get-visitor-data', (req, res) => {
-  let { id_pengunjung } = req.query;
-
-  if (!id_pengunjung) {
-    res.status(404).send("Visitor Not Found!")
-  }
-  
-  let visitorInQuery = visitorsList.filter((data) => {return (data.id_pengunjung.indexOf(id_pengunjung) > -1)})
-  if (visitorInQuery.length > 0) {
-    res.status(200).json(visitorInQuery[0]);
-  } else {
-    res.status(404).send("Visitor Not Found!")
-  }
-})
-
-/**
- * @swagger
- *
- * /qr/qr-scanner/get-visitor-data:
- *   get:
- *     summary: Mendapatkan data log pengunjung berdasarkan id_pengunjung pada request query
- *     produces:
- *       - application/json
- *       - text/plain
- *     parameters:
- *       - in: query
- *         name: id_pengunjung
- *         description: String UUID hasil scan dari QR Code
- *         type: string
- *         example: 4f5c9fcc-4b37-4db5-be24-750d657ee7bb
- *     responses:
- *       200:
- *        description: Kembalikan data json log pengunjung
- *       404:
- *        description: Jika tidak ditemukan pengunjung pada database dengan id_pengunjung pada request query 
- */
-
-router.get('/get-visitor-log', (req, res) => {
-  let { id_pengunjung } = req.query;
-
-  if (!id_pengunjung) {
-    res.status(404).send("Visitor Not Found!")
-  }
-  
-  let visitorInQuery = visitorLog.filter((data) => {return (data.id_pengunjung.indexOf(id_pengunjung) > -1)})
-  if (visitorInQuery.length > 0) {
-    res.status(200).json(visitorInQuery)
-  } else {
-    res.status(404).send("Visitor Not Found!")
+    res.status(404).send("Tidak menemukan pengunjung dengan id itu")
   }
 })
 

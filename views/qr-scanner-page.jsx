@@ -26,7 +26,7 @@ const QRScannerPage = (props) => {
       </div>
 
       <div className="row mt-5">
-        <div className="col-md-6 col-12 p-3">
+        {/* <div className="col-md-6 col-12 p-3">
           <div className="card">
             <div className="card-header">
               <h5 className="card-title">Get Visitor Data</h5>
@@ -50,7 +50,7 @@ const QRScannerPage = (props) => {
               </form>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="col-md-6 col-12 p-3">
           <div className="card">
@@ -91,7 +91,7 @@ const QRScannerPage = (props) => {
             </div>
             <div className="card-body">
               <h6>Skenario</h6>
-              <p>Ruangan yang ingin dicek in adalah ruang "Kelas1_1702". Pada masing-masing scanner akan diberikan ruang unik sebagai form data yang bersifat hidden.</p>
+              <p>Ruangan yang ingin dicek out adalah ruang "Kelas1_1702". Pada masing-masing scanner akan diberikan ruang unik sebagai form data yang bersifat hidden.</p>
 
               <form action={FrontendRoutes.VisitorCheckOut} method="post">
                 <div className="form-group">
@@ -115,7 +115,7 @@ const QRScannerPage = (props) => {
           </div>
         </div>
 
-        <div className="col-md-6 col-12 p-3">
+        {/* <div className="col-md-6 col-12 p-3">
           <div className="card">
             <div className="card-header">
               <h5 className="card-title">Visitor Log</h5>
@@ -138,7 +138,7 @@ const QRScannerPage = (props) => {
               </form>
             </div>
           </div>
-        </div>
+        </div> */}
 
       </div>
     </DefaultLayout>

@@ -12,7 +12,16 @@ module.exports = {
         type: Sequelize.STRING
       },
       jumlah_pengunjung: {
+        type: Sequelize.INTEGER,
+      },
+      current_ruangan: {
         type: Sequelize.STRING,
+        references: {
+          model: 'Ruangan',
+          key: 'id_ruangan'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       permissions: {
         type: Sequelize.ARRAY(Sequelize.STRING)

@@ -22,7 +22,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     jumlah_pengunjung: {
+      type: DataTypes.INTEGER,
+    },
+    current_ruangan: {
       type: DataTypes.STRING,
+      references: {
+        model: 'Ruangan',
+        key: 'id_ruangan'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
     },
     permissions: {
       type: DataTypes.ARRAY(DataTypes.STRING)
