@@ -35,6 +35,14 @@ const swaggerDefinition = {
           min: "1",
           max: "100"
         },
+        current_ruangan: {
+          type: "string",
+          format: "Ruangan.id_ruangan"
+        },
+        permissions: {
+          type: "id_ruangan",
+          format: "Ruangan.id_ruangan[]",
+        },
         created_date: {
           type: "string",
           format: "datetime"
@@ -43,16 +51,11 @@ const swaggerDefinition = {
           type: "string",
           format: "datetime"
         },
-        permissions: {
-          type: "id_ruangan",
-          format: "id_ruangan[]",
-        }
       }
     },
 
     Ruangan: {
       type: "object",
-      description: "Bisa berupa ruangan fisik, seperti ruang inap, atau keseluruhan satu lantai gedung itu.",
       properties: {
         id_ruangan: {
           type: "string"
@@ -63,23 +66,46 @@ const swaggerDefinition = {
       }
     },
 
-    Log: {
+    LogPengunjung: {
       type: "object",
-      description: "Transaksi check in dan check out, digunakan untuk keperluan logging",
+      description: "Bisa berupa ruangan fisik, seperti ruang inap, atau keseluruhan satu lantai gedung itu.",
       properties: {
         id_log: {
-          type: "integer",
-          format: "<sequence> int64"
+          type: "integer"
         },
-        id_pengunjung: {
-          type: "id_pengunjung",
-          format: "uuid v4"
-        },
-        "type": {
+        "id_pengunjung": {
           type: "string",
-          enum: ["check-in", "check-out"]
+          format: "Pengunjung.id_pengunjung"
         },
-        timestamp: {
+        "id_ruangan": {
+          type: "string",
+          format: "Ruangan.id_ruangan"
+        },
+        "tipe_log": {
+          type: "string"
+        },
+        waktu_log: {
+          type: "string",
+          format: "datetime"
+        }
+      }
+    },
+
+    LogRuangan: {
+      type: "object",
+      description: "Log untuk setiap ruangan, untuk menghitung jumlah pengunjung pada setiap snapshot waktu",
+      properties: {
+        id_log: {
+          type: "integer"
+        },
+        "id_ruangan": {
+          type: "string",
+          format: "Ruangan.id_ruangan"
+        },
+        "jumlah_pengunjung": {
+          type: "integer"
+        },
+        waktu_log: {
           type: "string",
           format: "datetime"
         }

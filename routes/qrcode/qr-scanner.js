@@ -57,12 +57,18 @@ router.post('/checkin', async (req, res) => {
   let { id_pengunjung, id_ruangan } = req.body;
   let t = await sequelize.transaction();
 
+
   if (!id_pengunjung) {
     res.status(400).send("Tolong sertakan body id_pengunjung!")
   }
 
+  // Case 0: Kalo misalnya id_pengunjung formatnya bukan uuid
   let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
+  .catch((e) => {
+    res.send(400).send("Tolong masukkan id_pengunjung dengan format UUID yang benar!")
+  })
 
+  // Case 1: Ga Ketemu Pengunjung
   if (visitorInQuery) {
     if (visitorInQuery.permissions.indexOf(id_ruangan) > -1) {
       if (new Date(visitorInQuery.get('expired_date')).valueOf() > Date.now()) {
@@ -192,6 +198,9 @@ router.post('/checkout', async (req, res) => {
   }
 
   let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
+  .catch((e) => {
+    res.send(400).send("Tolong masukkan id_pengunjung dengan format UUID yang benar!")
+  })
 
   if (visitorInQuery) {
     if (visitorInQuery.permissions.indexOf(id_ruangan) > -1) {
