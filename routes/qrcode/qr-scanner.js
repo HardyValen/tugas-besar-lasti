@@ -58,17 +58,17 @@ router.post('/checkin', async (req, res) => {
   let t = await sequelize.transaction();
 
 
-  if (!id_pengunjung) {
+  if (!id_pengunjung || !id_ruangan) {
+    // Case 1: Kalo misalnya kurang format id_pengunjung atau id_ruangan
     res.status(400).send("Tolong sertakan body id_pengunjung!")
   }
 
-  // Case 0: Kalo misalnya id_pengunjung formatnya bukan uuid
   let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
   .catch((e) => {
-    res.send(400).send("Tolong masukkan id_pengunjung dengan format UUID yang benar!")
+    // Case 2: Kalo misalnya id_pengunjung formatnya bukan uuid
+    res.status(400).send("Tolong masukkan id_pengunjung dengan format UUID yang benar!")
   })
 
-  // Case 1: Ga Ketemu Pengunjung
   if (visitorInQuery) {
     if (visitorInQuery.permissions.indexOf(id_ruangan) > -1) {
       if (new Date(visitorInQuery.get('expired_date')).valueOf() > Date.now()) {
@@ -82,7 +82,7 @@ router.post('/checkin', async (req, res) => {
             }, {
               transaction: t
             })
-
+            
             await LogRuangan.create({
               id_ruangan,
               jumlah_pengunjung: 0, 
@@ -90,15 +90,16 @@ router.post('/checkin', async (req, res) => {
             }, {
               transaction: t
             })
-
+            
             await Pengunjung.update({
               current_ruangan: id_ruangan
             }, {
               where: {id_pengunjung},
               transaction: t
             })
-
+            
             await t.commit();
+            // Case 3: Pengunjung berhasil check in karena id_pengunjung ketemu, id_ruangan 
             res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} baru saja check in ke ${id_ruangan}`)
           } catch (error) {
             await t.rollback()
@@ -115,6 +116,7 @@ router.post('/checkin', async (req, res) => {
               transaction: t
             })
             await t.commit();
+            // Case 4: Pengunjung sudah check in di ruangan 
             res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} sudah check in di ruangan ${id_ruangan}`)
           } catch (error) {
             await t.rollback()
@@ -132,6 +134,8 @@ router.post('/checkin', async (req, res) => {
             transaction: t
           })
           await t.commit();
+
+          // Case 5: Pengunjung gagal check in karena sessionnya sudah expired
           res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin masuk ke ruangan ${id_ruangan}, tapi sesi izinnya sudah expired!)`)
         } catch (error) {
           await t.rollback()
@@ -149,13 +153,18 @@ router.post('/checkin', async (req, res) => {
           transaction: t
         })
         await t.commit();
+
+        // Case 6: Pengunjung gagal check in karena tidak ada izinnya
         res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin mencoba check in ke ${id_ruangan}, tapi tidak punya izin!`)
       } catch (error) {
         await t.rollback()
-        res.status(500).send("Internal Server Error")
+
+        // Case 7: Pengunjung gagal check in dan gagal buat log karena kesalahan pada id_pengunjung atau id_ruangan
+        res.status(500).send(`Internal Server Error.`)
       }
     }
   } else {
+    // Case 8: Pengunjung gagal check in karena tidak menemukan pengunjung dengan id tersebut
     res.status(404).send("Tidak menemukan pengunjung dengan id itu")
   }
 })
@@ -193,13 +202,15 @@ router.post('/checkout', async (req, res) => {
 
   let t = await sequelize.transaction();
 
-  if (!id_pengunjung) {
+  if (!id_pengunjung || !id_ruangan) {
+    // Case 1: Kalo misalnya kurang format id_pengunjung atau id_ruangan
     res.status(400).send("Tolong sertakan body id_pengunjung!")
   }
 
   let visitorInQuery = await Pengunjung.findOne({where: {id_pengunjung}})
   .catch((e) => {
-    res.send(400).send("Tolong masukkan id_pengunjung dengan format UUID yang benar!")
+    // Case 2: Kalo misalnya id_pengunjung formatnya bukan uuid
+    res.status(400).send("Tolong masukkan id_pengunjung dengan format UUID yang benar!")
   })
 
   if (visitorInQuery) {
@@ -223,6 +234,7 @@ router.post('/checkout', async (req, res) => {
           })
   
           await t.commit();
+          // Case 3: Pengunjung berhasil check out
           res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} baru saja keluar dari ${id_ruangan}`)
         } catch (error) {
           await t.rollback()
@@ -240,6 +252,8 @@ router.post('/checkout', async (req, res) => {
           })
   
           await t.commit();
+
+          // Case 4: Pengunjung gagal check out karena sudah keburu checkout
           res.status(200).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} tidak ada di ruangan ${id_ruangan} atau mungkin sudah check out`)
         } catch (error) {
           await t.rollback()
@@ -256,14 +270,17 @@ router.post('/checkout', async (req, res) => {
         }, {
           transaction: t
         })
-        await t.commit();
+        await t.commit()
+        // Case 5: Pengunjung gagal check out karena tidak ada izin dari daftar ruangannya yang diberikan izin;
         res.status(400).send(`Pengunjung ${visitorInQuery.get('nama_pengunjung')} ingin check out dari ruang ${id_ruangan}, tapi tidak ada izin!`)
       } catch (error) {
         await t.rollback()
+        // Case 7: Semua 500 itu gara2 salah dari database atau salah format id_pengunjung dan id_ruangan
         res.status(500).send("Internal Server Error")
       }
     }
   } else {
+    // Case 6: Pengunjung yang mana ya?
     res.status(404).send("Tidak menemukan pengunjung dengan id itu")
   }
 })
